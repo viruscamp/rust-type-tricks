@@ -38,26 +38,13 @@ pub fn from_val<T>(x: <T as Is>::Type) -> T {
     x
 }
 
+#[cfg(feature = "alloc")]
 pub fn into_box_val<T>(it: Box<T>) -> Box<<T as Is>::Type>
 {
     it
 }
 
+#[cfg(feature = "alloc")]
 pub fn from_box_val<T>(x: Box<<T as Is>::Type>) -> Box<T> {
     x
-}
-
-
-struct Test<U, T: Is<Type = U>>(U, T);
-
-impl<U, T: Is<Type = U>> Test<U, T> {
-    fn check(self) {
-        let a: U = self.0;
-        let b: T = self.1;
-    }
-
-    fn swap(self) {        
-        let c: U = into_val(self.1);
-        let d: T = from_val(self.0);
-    }
 }

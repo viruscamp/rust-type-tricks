@@ -1,4 +1,4 @@
-//#![no_std]
+#![no_std]
 #![feature(fundamental)]
 #![feature(negative_impls)]
 #![feature(specialization)]
@@ -11,7 +11,7 @@ pub trait NamedImplBase {
 }
 
 pub trait TrueTrait {}
-pub enum True {}
+pub struct True;
 impl TrueTrait for True {}
 impl !FalseTrait for True {}
 

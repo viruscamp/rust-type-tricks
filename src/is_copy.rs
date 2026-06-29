@@ -1,5 +1,3 @@
-use std::ops::Not;
-
 use crate::{W, True, False};
 
 pub trait IsCopy {
@@ -8,6 +6,8 @@ pub trait IsCopy {
 }
 
 impl<T> IsCopy for W<T> {
+    // due to https://github.com/rust-lang/rfcs/blob/master/text/1210-impl-specialization.md#hazard-interactions-with-type-checking
+    // an associated type from a blanket impl must be treated "opaquely" if it's marked default
     default type const Impled: bool = false;
     default type Answer = False;
 }
