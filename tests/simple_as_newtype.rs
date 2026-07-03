@@ -1,6 +1,4 @@
-use core::fmt::{Debug, Formatter, Result};
-
-use type_tricks::{NamedImplBase, Wrap, debug::NamedDebug};
+use type_tricks::{NamedImplBase, Wrap, debug::NamedDebugProvider};
 
 mod share;
 use share::named_debug_impls::NamedDebugProxy;
@@ -9,7 +7,7 @@ struct WrapI32Tag;
 impl NamedImplBase for WrapI32Tag {
     type Target = i32;
 }
-/// I donot want WrapI32 to be a transparent wrapper, 
+/// For this type, I donot want it to be a transparent wrapper, 
 /// so Deref is disabled with ImplDeref=false
 type WrapI32 = Wrap<WrapI32Tag, false>;
 
@@ -21,10 +19,8 @@ impl ToString for WrapI32 {
 }
 
 // impl trait by delegation to a named impl
-impl Debug for WrapI32 {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        NamedDebugProxy::fmt(&self.0, f)
-    }
+impl NamedDebugProvider for WrapI32Tag {
+    type Impl = NamedDebugProxy<i32>;
 }
 
 #[test]

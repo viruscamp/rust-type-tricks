@@ -17,8 +17,8 @@ impl<N: NamedDisplay> NamedDisplayProvider for N {
     type Impl = Self;
 }
 
-impl<NP: NamedDisplayProvider> Display for crate::Wrap<NP> {
-    default fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+impl<NP: NamedDisplayProvider, const ImplDeref: bool> Display for crate::Wrap<NP, ImplDeref> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         NP::Impl::fmt(Is::from_ref(&self.0), f)
     }
 }

@@ -18,7 +18,7 @@ impl<N: NamedDebug> NamedDebugProvider for N {
 }
 
 // https://github.com/rust-lang/rust/issues/124449
-impl<NP: NamedDebugProvider> Debug for crate::Wrap<NP> {
+impl<NP: NamedDebugProvider, const ImplDeref: bool> Debug for crate::Wrap<NP, ImplDeref> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         NP::Impl::fmt(Is::from_ref(&self.0), f)
     }
