@@ -28,16 +28,16 @@ where
 impl<NP, const ImplDeref: bool> UserSuper for Wrap<NP, ImplDeref>
 where
     NP: UserSuperProvider,
+    Named<NP::Impl>: UserSuper,
     NP::Impl: ShadowTrait,
     NP::Target: Is<Type = <NP::Impl as ShadowTrait>::Target>,
     NP::Target: Sync + Send + Copy,
     <NP::Impl as ShadowTrait>::Target: Sync + Send + Copy,
-    Named<NP::Impl>: UserSuper
 {
     fn new() -> Self {
         let a = Named::new();
         let b = a.0;
-        let c: NP::Target = <NP::Target as Is>::to_left(b);
+        let c = <NP::Target as Is>::to_left(b);
         Wrap::new(c)
     }
 
@@ -73,9 +73,9 @@ pub trait UserTrait : UserSuper {
 
 pub trait UserTraitProvider: ShadowTrait
 where
+    Named<Self::Impl>: UserTrait,
     Self::Impl: ShadowTrait,
     Self::Target: Is<Type = <Self::Impl as ShadowTrait>::Target>,
-    Named<Self::Impl>: UserTrait,
 {
     type Impl;
 }
@@ -90,26 +90,26 @@ where
 
 impl<NP, const ImplDeref: bool> UserTrait for Wrap<NP, ImplDeref>
 where
-    NP: UserTraitProvider,
-    <NP as UserTraitProvider>::Impl: ShadowTrait,
-    <NP as ShadowTrait>::Target: Is<Type = <<NP as UserTraitProvider>::Impl as ShadowTrait>::Target>,
-    Named<<NP as UserTraitProvider>::Impl>: UserTrait,
-
-    Named<NP>: UserSuper,
     Self: UserSuper,
-
+    NP: UserTraitProvider,
+    Named<NP::Impl>: UserTrait,
+    NP::Impl: ShadowTrait,
+    NP::Target: Is<Type = <NP::Impl as ShadowTrait>::Target>,
     NP::Target: Sync + Send + Copy,
+    <NP::Impl as ShadowTrait>::Target: Sync + Send + Copy,
 {
     fn use_ref(&self) {
-        let a = <NP::Target as Is>::to_ref_right(&self.0);
-        Named::use_ref(Named::wrap_ref(a))
+        let a = &self.0;
+        let b = <NP::Target as Is>::to_ref_right(a);
+        let c = Named::wrap_ref(b);
+        Named::use_ref(c)
     }
     
     fn return_ref() -> &'static Self {
         let a = Named::return_ref();
         let b = &a.0;
-        let c = <<NP as ShadowTrait>::Target as Is>::to_ref_left(b);
-        <Self as TransparentWrapper<_>>::wrap_ref(c)
+        let c = <NP::Target as Is>::to_ref_left(b);
+        Self::wrap_ref(c)
     }
 }
 
