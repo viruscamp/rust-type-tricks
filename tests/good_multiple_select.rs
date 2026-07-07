@@ -14,45 +14,36 @@ use share::named_debug_impls::*;
 use shadow_traits::display::DefaultDisplay;
 use shadow_traits::display::DisplayProvider;
 use shadow_traits::debug::DebugProvider;
-use shadow_traits::is::Is;
 
 pub struct MultipleImplSelector<T, N1, N2>
 (PhantomData<T>, PhantomData<N1>, PhantomData<N2>);
 
 impl<T, N1, N2> ShadowTrait for MultipleImplSelector<T, N1, N2>
 where
-    N1: ShadowTrait,
+    N1: ShadowTrait<Target = T>,
     Named<N1>: Display,
-    N1::Target: Is<Type = T>,
-    N2: ShadowTrait,
+    N2: ShadowTrait<Target = T>,
     Named<N2>: Debug,
-    N2::Target: Is<Type = T>,
 {
     type Target = T;
 }
 
 impl<T, N1, N2> DisplayProvider for MultipleImplSelector<T, N1, N2>
 where
-    N1: ShadowTrait,
+    N1: ShadowTrait<Target = T>,
     Named<N1>: Display,
-    N1::Target: Is<Type = T>,
-    T: Is<Type = N1::Target>,
-    N2: ShadowTrait,
+    N2: ShadowTrait<Target = T>,
     Named<N2>: Debug,
-    N2::Target: Is<Type = T>,
 {
     type Impl = N1;
 }
 
 impl<'a, T, N1, N2> DebugProvider for MultipleImplSelector<T, N1, N2>
 where
-    N1: ShadowTrait,
+    N1: ShadowTrait<Target = T>,
     Named<N1>: Display,
-    N1::Target: Is<Type = T>,
-    N2: ShadowTrait,
+    N2: ShadowTrait<Target = T>,
     Named<N2>: Debug,
-    N2::Target: Is<Type = T>,
-    T: Is<Type = N2::Target>,
 {
     type Impl = N2;
 }

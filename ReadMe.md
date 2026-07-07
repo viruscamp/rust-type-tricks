@@ -36,26 +36,21 @@ depends: `ShadowTrait`
 // required, delegate trait on Wrap to named-impl, external crates cannot do this
 pub trait DisplayProvider: ShadowTrait
 where
-    Self::Impl: ShadowTrait,
-    Self::Target: Is<Type = <Self::Impl as ShadowTrait>::Target>,
-    Named<Self::Impl>: Display
+    Named<Self::Impl>: Display,
+    Self::Impl: ShadowTrait<Target = Self::Target>,
 {
     type Impl;
 }
 
 impl<N> DisplayProvider for N
 where
+    Named<N>: Display,
     N: ShadowTrait,
-    Named<N>: Display
 {
     type Impl = Self;
 }
 
-impl<NP> Display for Wrap<NP, ImplDeref>
-where
-    Named<NP::Impl>: Display,
-    NP: DisplayProvider,
-{}
+impl<NP: DisplayProvider> Display for Wrap<NP, ImplDeref> {}
 
 // optinal, a default impl
 pub struct DefaultDisplay<T: Display + ?Sized>(PhantomData<T>);

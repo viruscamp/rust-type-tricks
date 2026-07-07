@@ -1,4 +1,4 @@
-use crate::{ShadowTrait, Is, Wrap, Named};
+use crate::{ShadowTrait, Named, Wrap};
 
 use bytemuck::TransparentWrapper;
 use core::fmt::{Display, Formatter, Result};
@@ -7,8 +7,7 @@ use core::marker::PhantomData;
 pub trait DisplayProvider: ShadowTrait
 where
     Named<Self::Impl>: Display,
-    Self::Impl: ShadowTrait,
-    Self::Target: Is<Type = <Self::Impl as ShadowTrait>::Target>,
+    Self::Impl: ShadowTrait<Target = Self::Target>,
 {
     type Impl;
 }
@@ -25,14 +24,10 @@ impl<NP, const ImplDeref: bool> Display for Wrap<NP, ImplDeref>
 where
     NP: DisplayProvider,
     Named<NP::Impl>: Display,
-    NP::Impl: ShadowTrait,
-    NP::Target: Is<Type = <NP::Impl as ShadowTrait>::Target>,
+    NP::Impl: ShadowTrait<Target = NP::Target>,
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        let a = &self.0;
-        let b = <NP::Target as Is>::to_ref_right(a);
-        let c: &Named<NP::Impl> = Named::<NP::Impl>::wrap_ref(b);
-        Named::<NP::Impl>::fmt(c, f)
+        Named::fmt(Named::wrap_ref(&self.0), f)
     }
 }
 

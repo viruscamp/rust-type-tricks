@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use bytemuck::TransparentWrapper;
-use shadow_traits::{Named, ShadowTrait, Wrap, Is};
+use shadow_traits::{Named, ShadowTrait, Wrap};
 
 pub trait UserSuper: Sync + Send + Copy {
     fn new() -> Self;
@@ -11,8 +11,7 @@ pub trait UserSuper: Sync + Send + Copy {
 pub trait UserSuperProvider: ShadowTrait
 where
     Named<Self::Impl>: UserSuper,
-    Self::Impl: ShadowTrait,
-    Self::Target: Is<Type = <Self::Impl as ShadowTrait>::Target>,
+    Self::Impl: ShadowTrait<Target = Self::Target>,
 {
     type Impl;
 }
@@ -29,23 +28,15 @@ impl<NP, const ImplDeref: bool> UserSuper for Wrap<NP, ImplDeref>
 where
     NP: UserSuperProvider,
     Named<NP::Impl>: UserSuper,
-    NP::Impl: ShadowTrait,
-    NP::Target: Is<Type = <NP::Impl as ShadowTrait>::Target>,
+    NP::Impl: ShadowTrait<Target = NP::Target>,
     NP::Target: Sync + Send + Copy,
-    <NP::Impl as ShadowTrait>::Target: Sync + Send + Copy,
 {
     fn new() -> Self {
-        let a = Named::new();
-        let b = a.0;
-        let c = <NP::Target as Is>::to_left(b);
-        Wrap::new(c)
+        Wrap::new(Named::new().0)
     }
 
     fn consume(self) {
-        let a = self.0;
-        let b = <NP::Target as Is>::to_right(a);
-        let c = Named::wrap(b);
-        Named::consume(c)
+        Named::consume(Named::wrap(self.0))
     }
 }
 
@@ -74,8 +65,7 @@ pub trait UserTrait : UserSuper {
 pub trait UserTraitProvider: ShadowTrait
 where
     Named<Self::Impl>: UserTrait,
-    Self::Impl: ShadowTrait,
-    Self::Target: Is<Type = <Self::Impl as ShadowTrait>::Target>,
+    Self::Impl: ShadowTrait<Target = Self::Target>,
 {
     type Impl;
 }
@@ -93,23 +83,18 @@ where
     Self: UserSuper,
     NP: UserTraitProvider,
     Named<NP::Impl>: UserTrait,
-    NP::Impl: ShadowTrait,
-    NP::Target: Is<Type = <NP::Impl as ShadowTrait>::Target>,
+    NP::Impl: ShadowTrait<Target = NP::Target>,
     NP::Target: Sync + Send + Copy,
-    <NP::Impl as ShadowTrait>::Target: Sync + Send + Copy,
 {
     fn use_ref(&self) {
-        let a = &self.0;
-        let b = <NP::Target as Is>::to_ref_right(a);
-        let c = Named::wrap_ref(b);
+        let c = Named::wrap_ref(&self.0);
         Named::use_ref(c)
     }
     
     fn return_ref() -> &'static Self {
         let a = Named::return_ref();
         let b = &a.0;
-        let c = <NP::Target as Is>::to_ref_left(b);
-        Self::wrap_ref(c)
+        Self::wrap_ref(b)
     }
 }
 

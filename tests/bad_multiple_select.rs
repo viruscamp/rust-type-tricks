@@ -4,7 +4,6 @@ use core::fmt::{Debug, Formatter, Result};
 use bytemuck::TransparentWrapper;
 use shadow_traits::wrap::Wrap;
 use shadow_traits::{Named, ShadowTrait};
-use shadow_traits::is::Is;
 
 mod share;
 
@@ -18,46 +17,38 @@ pub struct MultipleImplSelector<T, N1, N2>
 
 impl<T, TS, D> ShadowTrait for MultipleImplSelector<T, TS, D>
 where
-    TS: ShadowTrait,
+    TS: ShadowTrait<Target = T>,
     Named<TS>: ToString,
-    TS::Target: Is<Type = T>,
-    D: ShadowTrait,
+    D: ShadowTrait<Target = T>,
     Named<D>: Debug,
-    D::Target: Is<Type = T>,
 {
     type Target = T;
 }
 
 impl<T, TS, D> ToString for Wrap<MultipleImplSelector<T, TS, D>>
 where
-    TS: ShadowTrait,
+    TS: ShadowTrait<Target = T>,
     Named<TS>: ToString,
-    TS::Target: Is<Type = T>,
-    D: ShadowTrait,
+    D: ShadowTrait<Target = T>,
     Named<D>: Debug,
-    D::Target: Is<Type = T>,
 {
     fn to_string(&self) -> String {
         let a: &T = &self.0;
-        let b = <TS::Target as Is>::to_ref_left(a);
-        let c = Named::<TS>::wrap_ref(b);
+        let c = Named::<TS>::wrap_ref(a);
         Named::to_string(c)
     }
 }
 
 impl<T, TS, D> Debug for Wrap<MultipleImplSelector<T, TS, D>>
 where
-    TS: ShadowTrait,
+    TS: ShadowTrait<Target = T>,
     Named<TS>: ToString,
-    TS::Target: Is<Type = T>,
-    D: ShadowTrait,
+    D: ShadowTrait<Target = T>,
     Named<D>: Debug,
-    D::Target: Is<Type = T>,
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         let a: &T = &self.0;
-        let b = <D::Target as Is>::to_ref_left(a);
-        let c = Named::<D>::wrap_ref(b);
+        let c = Named::<D>::wrap_ref(a);
         Named::<D>::fmt(c, f)
     }
 }

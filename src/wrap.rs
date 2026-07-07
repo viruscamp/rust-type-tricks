@@ -8,32 +8,6 @@ use bytemuck::TransparentWrapper;
 
 use crate::ShadowTrait;
 
-#[fundamental]
-#[repr(transparent)]
-pub struct Named<NamedImpl: ShadowTrait>(pub NamedImpl::Target);
-
-unsafe impl<NamedImpl: ShadowTrait> TransparentWrapper<NamedImpl::Target>
-    for Named<NamedImpl>
-{
-}
-
-impl<NamedImpl> Clone for Named<NamedImpl>
-where
-    NamedImpl: ShadowTrait,
-    NamedImpl::Target: Copy,
-{
-    fn clone(&self) -> Self {
-        Named(self.0)
-    }
-}
-
-impl<NamedImpl> Copy for Named<NamedImpl>
-where
-    NamedImpl: ShadowTrait,
-    NamedImpl::Target: Copy,
-{
-}
-
 // newtype wrapper
 #[fundamental]
 #[repr(transparent)]
